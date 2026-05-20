@@ -1,0 +1,144 @@
+<html>
+<head>
+<title>BillManager.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cc7832;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #6a8759;}
+.s3 { color: #6897bb;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+BillManager.java</font>
+</center></td></tr></table>
+<pre><span class="s0">package </span><span class="s1">Bill</span><span class="s0">;</span>
+
+<span class="s0">import </span><span class="s1">java.io.*</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">java.time.LocalDate</span><span class="s0">;</span>
+
+<span class="s0">public class </span><span class="s1">BillManager {</span>
+    <span class="s0">private </span><span class="s1">Bill[] bills</span><span class="s0">;</span>
+    <span class="s0">private int </span><span class="s1">billCount</span><span class="s0">;</span>
+    <span class="s0">private static final </span><span class="s1">String BILL_FILE =</span><span class="s2">&quot;bills.txt&quot;</span><span class="s0">;</span>
+    <span class="s0">private static final int </span><span class="s1">MAX_BILLS = </span><span class="s3">1000</span><span class="s0">;</span>
+
+    <span class="s0">public </span><span class="s1">BillManager(){</span>
+        <span class="s1">bills = </span><span class="s0">new </span><span class="s1">Bill[MAX_BILLS]</span><span class="s0">;</span>
+        <span class="s1">billCount = </span><span class="s3">0</span><span class="s0">;</span>
+        <span class="s1">loadBillsFromTextFile()</span><span class="s0">;</span>
+    <span class="s1">}</span>
+
+    <span class="s0">public void </span><span class="s1">addBill(Bill bill){</span>
+        <span class="s0">if</span><span class="s1">(billCount &gt;= MAX_BILLS){</span>
+            <span class="s1">System.out.println(</span><span class="s2">&quot;Cannot add more bills. Max limit reached.&quot;</span><span class="s1">)</span><span class="s0">;</span>
+            <span class="s0">return;</span>
+        <span class="s1">}</span>
+
+        <span class="s1">bills[billCount] = bill</span><span class="s0">;</span>
+        <span class="s1">billCount++</span><span class="s0">;</span>
+        <span class="s1">saveBillsToTextFile()</span><span class="s0">;</span>
+        <span class="s1">System.out.println(</span><span class="s2">&quot;Bill added successfully.&quot;</span><span class="s1">)</span><span class="s0">;</span>
+    <span class="s1">}</span>
+
+    <span class="s0">public </span><span class="s1">Bill findBillByCustomerID(</span><span class="s0">int </span><span class="s1">customerID){</span>
+        <span class="s0">for</span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s3">0</span><span class="s0">; </span><span class="s1">i &lt; billCount</span><span class="s0">; </span><span class="s1">i++){</span>
+            <span class="s0">if</span><span class="s1">(bills[i].getCustomerID() == customerID &amp;&amp; !bills[i].isPaid()){</span>
+                <span class="s0">return </span><span class="s1">bills[i]</span><span class="s0">;</span>
+            <span class="s1">}</span>
+        <span class="s1">}</span>
+        <span class="s0">return null;</span>
+    <span class="s1">}</span>
+
+    <span class="s0">public </span><span class="s1">Bill[] getBillsByMonth(</span><span class="s0">int </span><span class="s1">month</span><span class="s0">, int </span><span class="s1">year){</span>
+        <span class="s1">Bill[] monthlyBills = </span><span class="s0">new </span><span class="s1">Bill[MAX_BILLS]</span><span class="s0">;</span>
+        <span class="s0">int </span><span class="s1">count = </span><span class="s3">0</span><span class="s0">;</span>
+
+        <span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s3">0</span><span class="s0">; </span><span class="s1">i &lt; billCount</span><span class="s0">; </span><span class="s1">i++){</span>
+            <span class="s1">LocalDate billDate = bills[i].getBillDate()</span><span class="s0">;</span>
+            <span class="s0">if</span><span class="s1">(billDate.getMonthValue() == month &amp;&amp; billDate.getYear() == year){</span>
+                <span class="s1">monthlyBills[count++] = bills[i]</span><span class="s0">;</span>
+            <span class="s1">}</span>
+        <span class="s1">}</span>
+
+        <span class="s1">Bill[] result = </span><span class="s0">new </span><span class="s1">Bill[count]</span><span class="s0">;</span>
+        <span class="s0">for</span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s3">0</span><span class="s0">; </span><span class="s1">i &lt; count</span><span class="s0">; </span><span class="s1">i++){</span>
+            <span class="s1">result[i] = monthlyBills[i]</span><span class="s0">;</span>
+        <span class="s1">}</span>
+        <span class="s0">return </span><span class="s1">result</span><span class="s0">;</span>
+    <span class="s1">}</span>
+
+    <span class="s0">public void </span><span class="s1">displayAllBills(){</span>
+        <span class="s0">if</span><span class="s1">(billCount == </span><span class="s3">0</span><span class="s1">){</span>
+            <span class="s1">System.out.println(</span><span class="s2">&quot;No bils found.&quot;</span><span class="s1">)</span><span class="s0">;</span>
+            <span class="s0">return;</span>
+        <span class="s1">}</span>
+        <span class="s1">System.out.println(</span><span class="s2">&quot;-&quot;</span><span class="s1">.repeat(</span><span class="s3">10</span><span class="s1">) + </span><span class="s2">&quot;All Bills&quot; </span><span class="s1">+ </span><span class="s2">&quot;-&quot;</span><span class="s1">.repeat(</span><span class="s3">10</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">System.out.println(</span><span class="s2">&quot;Total Bills: &quot; </span><span class="s1">+ billCount)</span><span class="s0">;</span>
+        <span class="s0">for</span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s3">0</span><span class="s0">; </span><span class="s1">i &lt; billCount</span><span class="s0">; </span><span class="s1">i++){</span>
+            <span class="s1">System.out.println(</span><span class="s2">&quot;Bill [&quot; </span><span class="s1">+ i + </span><span class="s2">&quot;]: &quot;</span><span class="s1">)</span><span class="s0">;</span>
+            <span class="s1">bills[i].displayBill()</span><span class="s0">;</span>
+        <span class="s1">}</span>
+    <span class="s1">}</span>
+
+    <span class="s0">public void </span><span class="s1">displayPendingBills(){</span>
+        <span class="s0">boolean </span><span class="s1">found = </span><span class="s0">false;</span>
+        <span class="s1">System.out.println(</span><span class="s2">&quot;-&quot;</span><span class="s1">.repeat(</span><span class="s3">10</span><span class="s1">) + </span><span class="s2">&quot;Pending Bills&quot; </span><span class="s1">+ </span><span class="s2">&quot;-&quot;</span><span class="s1">.repeat(</span><span class="s3">10</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s0">for</span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s3">0</span><span class="s0">; </span><span class="s1">i &lt; billCount</span><span class="s0">; </span><span class="s1">i++){</span>
+            <span class="s0">if</span><span class="s1">(!bills[i].isPaid()){</span>
+                <span class="s1">System.out.println(</span><span class="s2">&quot;Bills [&quot; </span><span class="s1">+ i + </span><span class="s2">&quot;]: &quot;</span><span class="s1">)</span><span class="s0">;</span>
+                <span class="s1">bills[i].displayBill()</span><span class="s0">;</span>
+                <span class="s1">found = </span><span class="s0">true;</span>
+            <span class="s1">}</span>
+        <span class="s1">}</span>
+        <span class="s0">if</span><span class="s1">(!found){</span>
+            <span class="s1">System.out.println(</span><span class="s2">&quot;No pending bills;&quot;</span><span class="s1">)</span><span class="s0">;</span>
+        <span class="s1">}</span>
+    <span class="s1">}</span>
+
+    <span class="s0">private void </span><span class="s1">saveBillsToTextFile(){</span>
+        <span class="s0">try</span><span class="s1">(PrintWriter writer = </span><span class="s0">new </span><span class="s1">PrintWriter(</span><span class="s0">new </span><span class="s1">FileWriter(BILL_FILE))){</span>
+            <span class="s0">for</span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s3">0</span><span class="s0">; </span><span class="s1">i &lt; billCount</span><span class="s0">; </span><span class="s1">i++){</span>
+                <span class="s1">writer.println(bills[i].toCSV())</span><span class="s0">;</span>
+            <span class="s1">}</span>
+        <span class="s1">}</span><span class="s0">catch </span><span class="s1">(IOException e){</span>
+            <span class="s1">System.out.println(</span><span class="s2">&quot;Error saving bill to the text file: &quot; </span><span class="s1">+ e.getMessage())</span><span class="s0">;</span>
+        <span class="s1">}</span>
+    <span class="s1">}</span>
+
+    <span class="s0">private void </span><span class="s1">loadBillsFromTextFile(){</span>
+        <span class="s1">File file = </span><span class="s0">new </span><span class="s1">File(BILL_FILE)</span><span class="s0">;</span>
+        <span class="s0">if</span><span class="s1">(!file.exists()){</span>
+            <span class="s1">System.out.println(</span><span class="s2">&quot;File not found!&quot;</span><span class="s1">)</span><span class="s0">;</span>
+            <span class="s0">return;</span>
+        <span class="s1">}</span>
+        <span class="s0">try</span><span class="s1">(BufferedReader reader = </span><span class="s0">new </span><span class="s1">BufferedReader(</span><span class="s0">new </span><span class="s1">FileReader(BILL_FILE))){</span>
+            <span class="s1">String line</span><span class="s0">;</span>
+            <span class="s1">billCount = </span><span class="s3">0</span><span class="s0">;</span>
+            <span class="s0">while</span><span class="s1">((line = reader.readLine()) != </span><span class="s0">null </span><span class="s1">&amp;&amp; billCount &lt; MAX_BILLS){</span>
+                <span class="s1">Bill bill = Bill.fromCSV(line)</span><span class="s0">;</span>
+                <span class="s0">if</span><span class="s1">(bill != </span><span class="s0">null</span><span class="s1">){</span>
+                    <span class="s1">bills[billCount] = bill</span><span class="s0">;</span>
+                    <span class="s1">billCount++</span><span class="s0">;</span>
+                <span class="s1">}</span>
+            <span class="s1">}</span>
+        <span class="s1">}</span><span class="s0">catch </span><span class="s1">(IOException e){</span>
+            <span class="s1">System.out.println(</span><span class="s2">&quot;Error loading bills: &quot; </span><span class="s1">+ e.getMessage())</span><span class="s0">;</span>
+        <span class="s1">}</span>
+
+    <span class="s1">}</span>
+
+    <span class="s0">public int </span><span class="s1">getBillCount() {</span>
+        <span class="s0">return </span><span class="s1">billCount</span><span class="s0">;</span>
+    <span class="s1">}</span>
+
+    <span class="s0">public void </span><span class="s1">saveBills(){</span>
+        <span class="s1">saveBillsToTextFile()</span><span class="s0">;</span>
+    <span class="s1">}</span>
+<span class="s1">}</span>
+</pre>
+</body>
+</html>

@@ -1,0 +1,3 @@
+1002, isuru, waththala, Domestic
+1003, tharushi, anuradapura, Commercial
+1004, himaya, gall, Domestic
